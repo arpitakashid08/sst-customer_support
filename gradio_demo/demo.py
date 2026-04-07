@@ -13,12 +13,24 @@ from typing import Dict, List, Tuple
 import gradio as gr
 import plotly.graph_objects as go
 
-from my_env.agent import PPOAgent
-from my_env.support_env import (
-    infer_scenario_from_message,
-    reward_for_action,
-    encode_observation,
-)
+import os
+
+from openai import OpenAI
+
+try:
+    from agent import SupportAgent
+    from support_env import (
+        infer_scenario_from_message,
+        reward_for_action,
+        encode_observation,
+    )
+except ModuleNotFoundError:
+    from my_env.agent import SupportAgent
+    from my_env.support_env import (
+        infer_scenario_from_message,
+        reward_for_action,
+        encode_observation,
+    )
 
 SCENARIOS: List[Dict[str, str]] = [
     {
@@ -41,7 +53,11 @@ SCENARIOS: List[Dict[str, str]] = [
     },
 ]
 
-AGENT = PPOAgent()
+API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
+API_KEY = os.getenv("OPENAI_API_KEY")
+CLIENT = OpenAI(base_url=API_BASE_URL, api_key=API_KEY) if API_KEY else None
+AGENT = SupportAgent(CLIENT, MODEL_NAME)
 
 
 def _build_reward_plot(rewards: List[int]) -> go.Figure:
@@ -140,9 +156,9 @@ def _run_agent(
         priority = scenario.priority
         scenario_label = scenario.name
 
-        agent_result = AGENT.predict(encode_observation(scenario), deterministic=False)
+        agent_result = AGENT.act(encode_observation(scenario))
         action = agent_result.action_label
-        response = _generate_response(action)
+        response = agent_result.action_probs.get("response_text") or _generate_response(action)
         reward = reward_for_action(scenario, agent_result.action_id)
         action_probs = agent_result.action_probs
     except Exception as exc:  # prevent Gradio error panels

@@ -14,6 +14,7 @@ ACTION_LABELS: List[str] = [
     "reply_to_customer",
     "create_support_ticket",
     "escalate_to_human",
+    "request_info",
 ]
 
 PRIORITY_TO_VALUE: Dict[str, float] = {"low": 0.0, "medium": 0.5, "high": 1.0}
@@ -75,7 +76,7 @@ SCENARIOS: List[Scenario] = [
         message="What are your business hours?",
         issue_type="general",
         priority="low",
-        correct_action=0,
+        correct_action=3,
         reward=2.0,
     ),
 ]
@@ -83,6 +84,14 @@ SCENARIOS: List[Scenario] = [
 
 def scenario_by_id(scenario_id: int) -> Scenario:
     return SCENARIOS[int(scenario_id)]
+
+def decode_observation(observation: np.ndarray) -> Scenario:
+    """Decode observation vector into the closest scenario."""
+    obs = np.asarray(observation, dtype=np.float32).reshape(-1)
+    scenario_value = float(obs[0])
+    scenario_id = int(round(scenario_value * (len(SCENARIOS) - 1)))
+    scenario_id = max(0, min(len(SCENARIOS) - 1, scenario_id))
+    return scenario_by_id(scenario_id)
 
 
 def encode_observation(scenario: Scenario) -> np.ndarray:
@@ -97,6 +106,18 @@ def reward_for_action(scenario: Scenario, action: int) -> float:
     if action == scenario.correct_action:
         return scenario.reward
     return -1.0
+
+
+def default_action_for_issue(issue_type: str) -> str:
+    """Rule-based fallback action."""
+    if issue_type in ("order", "refund", "payment"):
+        return "create_support_ticket"
+    if issue_type == "complaint":
+        return "escalate_to_human"
+    return "request_info"
+
+
+ACTION_NAME_TO_ID = {label: idx for idx, label in enumerate(ACTION_LABELS)}
 
 
 def infer_scenario_from_message(message: str) -> Scenario:

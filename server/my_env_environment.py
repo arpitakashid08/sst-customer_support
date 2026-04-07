@@ -19,20 +19,11 @@ from openenv.core.env_server.interfaces import Environment
 from openenv.core.env_server.types import State
 
 try:
+    from models import MyAction, MyObservation
+    from support_env import ACTION_LABELS, SCENARIOS, reward_for_action, scenario_by_id
+except ImportError:
     from my_env.models import MyAction, MyObservation
     from my_env.support_env import ACTION_LABELS, SCENARIOS, reward_for_action, scenario_by_id
-except ImportError:
-    try:
-        from models import MyAction, MyObservation
-        from support_env import ACTION_LABELS, SCENARIOS, reward_for_action, scenario_by_id
-    except ImportError:
-        from ..models import MyAction, MyObservation
-        from ..support_env import (
-            ACTION_LABELS,
-            SCENARIOS,
-            reward_for_action,
-            scenario_by_id,
-        )
 
 
 CASE_LIBRARY = [scenario for scenario in SCENARIOS]

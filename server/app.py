@@ -37,18 +37,13 @@ except Exception as e:  # pragma: no cover
     ) from e
 
 try:
+    from models import MyAction, MyObservation
+    from server.my_env_environment import MyEnvironment
+    from gradio_demo.demo import build_demo
+except ModuleNotFoundError:
     from my_env.models import MyAction, MyObservation
     from my_env.server.my_env_environment import MyEnvironment
     from my_env.gradio_demo.demo import build_demo
-except ModuleNotFoundError:
-    try:
-        from models import MyAction, MyObservation
-        from server.my_env_environment import MyEnvironment
-        from gradio_demo.demo import build_demo
-    except ModuleNotFoundError:
-        from ..models import MyAction, MyObservation
-        from .my_env_environment import MyEnvironment
-        from ..gradio_demo.demo import build_demo
 
 
 import gradio as gr

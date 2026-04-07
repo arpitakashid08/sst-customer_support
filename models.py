@@ -22,6 +22,7 @@ ActionType = Literal[
     "reply_to_customer",
     "create_support_ticket",
     "escalate_to_human",
+    "request_info",
 ]
 
 
