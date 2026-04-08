@@ -15,7 +15,7 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
 
 API_KEY = os.getenv("OPENAI_API_KEY")
-client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY) if API_KEY else None
 
 
 def main() -> None:
