@@ -19,7 +19,7 @@ client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY) if API_KEY else None
 
 
 def main() -> None:
-    print("START")
+    print("START", flush=True)
 
     env = CustomerSupportEnv()
     agent = SupportAgent(client, MODEL_NAME)
@@ -34,14 +34,14 @@ def main() -> None:
         obs, reward, terminated, truncated, info = env.step(action_id)
         done = terminated or truncated
 
-        print(f"STEP: {step}")
-        print(f"OBSERVATION: {obs}")
-        print(f"ACTION: {result.action_label}")
-        print(f"REWARD: {reward}")
+        print(f"STEP: {step}", flush=True)
+        print(f"OBSERVATION: {obs}", flush=True)
+        print(f"ACTION: {result.action_label}", flush=True)
+        print(f"REWARD: {reward}", flush=True)
 
         step += 1
 
-    print("END")
+    print("END", flush=True)
 
 
 if __name__ == "__main__":
